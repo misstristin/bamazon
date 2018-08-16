@@ -42,10 +42,10 @@ var connection = mysql.createConnection({
         ])
         .then(function(inquirerResponse) {
 
-            var quantDes = inquirerResponse.quantitydesired;
+            var quantDes = parseFloat(inquirerResponse.quantitydesired);
             var itemPickedName = res[inquirerResponse.buyresponse - 1].product_name;
-            var itemPickedQuant = res[inquirerResponse.buyresponse].stock_quantity;
-            var itemPickedPrice = res[inquirerResponse.buyresponse - 1].price;
+            var itemPickedQuant = parseFloat(res[inquirerResponse.buyresponse].stock_quantity);
+            var itemPickedPrice = parseFloat(res[inquirerResponse.buyresponse - 1].price);
             var totalCost = itemPickedPrice * quantDes;
 
 
@@ -57,7 +57,7 @@ var connection = mysql.createConnection({
                 }else{
                     console.log('APPROVED, YOU HAVE ENOUGH TO PURCHASE.')
                     var newQuant = itemPickedQuant - quantDes;
-                    var queryUpdate = connection.query(
+                    connection.query(
                         "UPDATE products SET ? WHERE ?",
                         [
                         {
@@ -70,7 +70,7 @@ var connection = mysql.createConnection({
                         function(err, res) {
                         // console.log(res.affectedRows + " products updated!\n");
 
-                        console.log('That costs $' + totalCost + '.');
+                        console.log('Your total comes to $' + totalCost + '.');
                         console.log(itemPickedName + ' now has ' + newQuant + ' in stock.');
 
                         }
