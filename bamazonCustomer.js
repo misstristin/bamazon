@@ -14,16 +14,15 @@ var connection = mysql.createConnection({
   
   connection.connect(function(err) {
     if (err) throw err;
-    // console.log("connected as id " + connection.threadId);
-    afterConnection();
+    buyProduct();
   });
   
-  function afterConnection() {
+  function buyProduct() {
     connection.query("SELECT * FROM products", function(err, res) {
       if (err) throw err;
       console.log('PRODUCTS AVAILABLE')
       for (var i=0; i<res.length; i++){
-        console.log(res[i].item_id + ') ' + res[i].product_name + ' = $' + res[i].price);
+        console.log(res[i].item_id + ') ' + res[i].product_name + ' = $' + res[i].price + ' = only ' +res[i].stock_quantity + ' in stock');
       }
 
       inquirer
@@ -57,7 +56,7 @@ var connection = mysql.createConnection({
                 }else{
                     console.log('APPROVED, YOU HAVE ENOUGH TO PURCHASE.')
                     var newQuant = itemPickedQuant - quantDes;
-                    var queryUpdate = connection.query(
+                    connection.query(
                         "UPDATE products SET ? WHERE ?",
                         [
                         {
@@ -67,12 +66,15 @@ var connection = mysql.createConnection({
                             product_name: itemPickedName
                         }
                         ],
+
                         function(err, res) {
                         console.log('That costs $' + totalCost + '.');
                         console.log(itemPickedName + ' now has ' + newQuant + ' in stock.');
-                        }
-                    );
+                        
+                        });
+                            
                 }
+                
         });
 
       connection.end();
