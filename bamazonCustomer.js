@@ -35,10 +35,10 @@ var connection = mysql.createConnection({
             name: "buyresponse",
             },
             {
-                type: "input",
-                message: "How many?",
-                name: "quantitydesired",
-                }
+            type: "input",
+            message: "How many?",
+            name: "quantitydesired",
+            }
         ])
         .then(function(inquirerResponse) {
 
