@@ -58,15 +58,7 @@ var connection = mysql.createConnection({
                     console.log('APPROVED, YOU HAVE ENOUGH TO PURCHASE.')
                     var newQuant = itemPickedQuant - quantDes;
                     connection.query(
-                        "UPDATE products SET ? WHERE ?",
-                        [
-                        {
-                            stock_quantity: newQuant
-                        },
-                        {
-                            product_name: itemPickedName
-                        }
-                        ],
+                        "UPDATE products stock_quantity: " + newQuant + "WHERE product_name : " + itemPickedName,
                         function(err, res) {
                         // console.log(res.affectedRows + " products updated!\n");
 
