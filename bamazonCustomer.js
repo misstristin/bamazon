@@ -23,7 +23,7 @@ var connection = mysql.createConnection({
       if (err) throw err;
       console.log('PRODUCTS AVAILABLE')
       for (var i=0; i<res.length; i++){
-        console.log(res[i].item_id + ') ' + res[i].product_name + ' = $' + res[i].price);
+        console.log(res[i].item_id + ') ' + res[i].product_name + ' = $' + res[i].price + ' = ONLY ' + res[i].stock_quantity + ' LEFT IN STOCK!');
       }
 
       inquirer
