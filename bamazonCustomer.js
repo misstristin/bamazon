@@ -1,13 +1,6 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
 
-var quantDes;
-var itemPickedName;
-var itemPickedQuant;
-var itemPickedPrice;
-var totalCost;
-
-
 var connection = mysql.createConnection({
     host: "localhost",
   
@@ -21,6 +14,7 @@ var connection = mysql.createConnection({
   
   connection.connect(function(err) {
     if (err) throw err;
+    // console.log("connected as id " + connection.threadId);
     buyProduct();
   });
   
@@ -29,7 +23,7 @@ var connection = mysql.createConnection({
       if (err) throw err;
       console.log('PRODUCTS AVAILABLE')
       for (var i=0; i<res.length; i++){
-        console.log(res[i].item_id + ') ' + res[i].product_name + ' = $' + res[i].price + ' = only ' +res[i].stock_quantity + ' in stock');
+        console.log(res[i].item_id + ') ' + res[i].product_name + ' = $' + res[i].price);
       }
 
       inquirer
@@ -48,11 +42,11 @@ var connection = mysql.createConnection({
         ])
         .then(function(inquirerResponse) {
 
-            quantDes = inquirerResponse.quantitydesired;
-            itemPickedName = res[inquirerResponse.buyresponse - 1].product_name;
-            itemPickedQuant = res[inquirerResponse.buyresponse].stock_quantity;
-            itemPickedPrice = res[inquirerResponse.buyresponse - 1].price;
-            totalCost = itemPickedPrice * quantDes;
+            var quantDes = inquirerResponse.quantitydesired;
+            var itemPickedName = res[inquirerResponse.buyresponse - 1].product_name;
+            var itemPickedQuant = res[inquirerResponse.buyresponse].stock_quantity;
+            var itemPickedPrice = res[inquirerResponse.buyresponse - 1].price;
+            var totalCost = itemPickedPrice * quantDes;
 
 
             console.log('YOU CHOSE ' + itemPickedName + ' x ' + quantDes + ' QUANTITY.');
@@ -63,18 +57,25 @@ var connection = mysql.createConnection({
                 }else{
                     console.log('APPROVED, YOU HAVE ENOUGH TO PURCHASE.')
                     var newQuant = itemPickedQuant - quantDes;
-                    connection.query(
-                    "UPDATE products SET stock_quantity = " + newQuant + " WHERE product_name = " + itemPickedName,
+                    var queryUpdate = connection.query(
+                        "UPDATE products SET ? WHERE ?",
+                        [
+                        {
+                            stock_quantity: newQuant
+                        },
+                        {
+                            product_name: itemPickedName
+                        }
+                        ],
                         function(err, res) {
-                        if (err) throw err;
                         // console.log(res.affectedRows + " products updated!\n");
+
                         console.log('That costs $' + totalCost + '.');
                         console.log(itemPickedName + ' now has ' + newQuant + ' in stock.');
-                        
-                        });
-                            
+
+                        }
+                    );
                 }
-                
         });
 
       connection.end();
