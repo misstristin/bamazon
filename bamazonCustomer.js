@@ -14,7 +14,6 @@ var connection = mysql.createConnection({
   
   connection.connect(function(err) {
     if (err) throw err;
-    // console.log("connected as id " + connection.threadId);
     buyProduct();
   });
   
@@ -42,34 +41,36 @@ var connection = mysql.createConnection({
         ])
         .then(function(inquirerResponse) {
 
+            var buyResponse = parseInt(inquirerResponse.buyresponse);
+
             var quantDes = parseFloat(inquirerResponse.quantitydesired);
-            var itemPickedName = res[inquirerResponse.buyresponse - 1].product_name;
-            var itemPickedQuant = parseFloat(res[inquirerResponse.buyresponse].stock_quantity);
-            var itemPickedPrice = parseFloat(res[inquirerResponse.buyresponse - 1].price);
+            var itemPickedName = res[buyResponse - 1].product_name;
+            var itemPickedQuant = parseFloat(res[buyResponse -1].stock_quantity);
+            var itemPickedPrice = parseFloat(res[buyResponse - 1].price);
             var totalCost = itemPickedPrice * quantDes;
-
-
+            // console.log(inquirerResponse.buyresponse);
+            // console.log(inquirerResponse.quantitydesired);
             console.log('YOU CHOSE ' + itemPickedName + ' x ' + quantDes + ' QUANTITY.');
             console.log('There are ' + itemPickedQuant + ' currently available.');
 
                 if(quantDes>itemPickedQuant){
                     console.log('SORRY, INSUFFICIENT QUANTITY IN STOCK.');
+                    connection.end();
+
                 }else{
-                    console.log('APPROVED, YOU HAVE ENOUGH TO PURCHASE.')
+                    console.log('APPROVED, WE HAVE ENOUGH TO SELL.')
                     var newQuant = itemPickedQuant - quantDes;
                     connection.query(
-                        "UPDATE products stock_quantity: " + newQuant + "WHERE product_name : " + itemPickedName,
+                        "UPDATE products SET stock_quantity = " + newQuant + " WHERE item_id = " + inquirerResponse.buyresponse,
                         function(err, res) {
                         // console.log(res.affectedRows + " products updated!\n");
-
+                        // console.log(query.sql);
                         console.log('Your total comes to $' + totalCost + '.');
                         console.log(itemPickedName + ' now has ' + newQuant + ' in stock.');
-
+                        connection.end();
                         }
                     );
                 }
         });
-
-      connection.end();
     });
   }
